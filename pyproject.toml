@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "derafu-support"
+version = "1.0.0"
+description = "Utilidades generales de Python (fechas, diccionarios, números y log)."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.14"
+dependencies = [
+  "Babel>=2.18",     # format_number()
+]
+
+[dependency-groups]
+# Herramientas de desarrollo (lint, tipos y pruebas):
+# `pip install --group dev`
+dev = [
+  # mismas versiones que usan los proyectos, para probar la librería con
+  # ellas
+  "Babel==2.18.0",
+  "mypy==2.4.0",
+  "pyright==1.1.414",
+  "pytest==9.2.0",
+  "ruff==0.16.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+derafu_support = ["py.typed"]
+
+[tool.ruff]
+include = ["**/*.py", "**/*.pyi"]
+exclude = [".git", "__pycache__", "build", "dist", "venv"]
+line-length = 79
+target-version = "py314"
+respect-gitignore = true
+fix = false
+
+[tool.ruff.lint]
+select = [
+  "D",    # pydocstyle: docstrings
+  "F",    # Pyflakes: errores de código
+  "E",    # pycodestyle: estilo
+  "W",    # pycodestyle: advertencias
+  "I",    # isort: orden de imports
+  "UP",   # pyupgrade: sintaxis moderna
+  "N",    # pep8-naming: nombres
+  "B",    # bugbear: patrones de bugs comunes
+  "A",    # flake8-builtins: no ocultar nombres de builtins ni de la stdlib
+  "C90",  # mccabe: complejidad
+  "ANN",  # flake8-annotations: anotaciones de tipos
+  "ARG",  # argumentos sin uso
+  "DTZ",  # fechas con zona horaria
+  "TRY",  # tryceratops: manejo de excepciones
+  "SLF",  # acceso a miembros privados
+  "ERA",  # código comentado
+  "PL",   # pylint
+  "PT",   # estilo de pytest
+  "SIM",  # simplificaciones
+  "RET",  # returns
+  "C4",   # comprehensions
+  "PTH",  # pathlib en vez de os.path
+  "PIE",  # misceláneos
+  "RSE",  # raise
+  "PERF", # rendimiento
+  "FURB", # refurb: idioms modernos
+  "PGH",  # pygrep-hooks (prohíbe ignores genéricos)
+  "RUF",  # reglas propias de Ruff
+]
+ignore = [
+  # Estilo de docstrings: Ruff no puede exigir las dos reglas de cada par.
+  # - D203 (línea en blanco antes del docstring de una clase) choca con
+  #   `ruff format`, que quita esa línea: se usa su opuesta, D211.
+  # - D212 se descarta a favor de D213 (resumen en la segunda línea), el
+  #   estilo de los docstrings de BHExpress.
+  "D203",
+  "D212",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-branches = 25
+max-statements = 60
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["src", "tests"]
+
+[tool.pyright]
+include = ["src", "tests"]
+exclude = ["**/__pycache__", "build", "dist", "venv"]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+venvPath = "."
+venv = "venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
