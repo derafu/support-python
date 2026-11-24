@@ -77,7 +77,7 @@ ignore = [
   # - D203 (línea en blanco antes del docstring de una clase) choca con
   #   `ruff format`, que quita esa línea: se usa su opuesta, D211.
   # - D212 se descarta a favor de D213 (resumen en la segunda línea), el
-  #   estilo de los docstrings de BHExpress.
+  #   estilo de los docstrings de la librería.
   "D203",
   "D212",
 ]

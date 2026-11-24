@@ -1,7 +1,6 @@
 # derafu-support
 
-Utilidades generales de Python, separadas de `django-sasco`. La librería no
-depende de Django: lo que es de Django va en cada proyecto que lo usa.
+Utilidades generales de Python. La librería no depende de Django.
 
 Requiere Python 3.14.
 
@@ -28,32 +27,6 @@ Ejemplo: `from derafu_support.dates import period_current`.
 
 El selector de diccionarios (`selector()`) está en la librería
 [derafu-selector](https://github.com/derafu/selector-python).
-
-## Pendiente: piezas de Django que siguen en django-sasco
-
-Lo que es de Django se mueve a cada proyecto que lo usa, a medida que cada
-proyecto deja `django-sasco`. Estas piezas no las usa BHExpress (el primer
-proyecto migrado), así que quedan en `django-sasco` hasta migrar el proyecto
-que sí las usa, y ahí se mueven a ese proyecto:
-
-| Pieza en django-sasco | Proyecto que la usa |
-|---|---|
-| `forms.dictionary_selector`: `SelectorForm`, `SelectorCharField`, `SelectorEmailField`, `SelectorRegexField` (usa `selector()` de derafu-selector) | billmysales |
-| `templatetags.date_string_to_date` | billmysales |
-| `templatetags.mathematical_operations` (`multiplier`) | billmysales |
-
-## Cambios respecto de django-sasco
-
-- Los módulos `utils.datetime` y `utils.base64` se llaman `dates` y
-  `encoding`, para no tapar los módulos de la biblioteca estándar.
-- El formateo de números del tag `num` está en `format_number()`, que recibe
-  el idioma (el tag de cada proyecto le pasa el idioma de Django).
-- `is_set()` entrega sus mensajes de error sin traducción (antes usaba la
-  traducción de Django).
-- Las excepciones son subclases de las que se lanzaban antes
-  (`AttributeError`, `TypeError`), así que quien las captura no cambia.
-- `MemoryLogging` ya no falla cuando el llamador no tiene módulo (por
-  ejemplo, código ejecutado con `exec`).
 
 ## Desarrollo
 
