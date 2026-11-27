@@ -1,4 +1,4 @@
-"""Lectura y escritura de diccionarios en archivos JSON y CSV."""
+"""Read and write dictionaries from and to JSON and CSV files."""
 
 import csv
 import json
@@ -16,12 +16,12 @@ def dict_save_to_json(
     indent: int = 4,
 ) -> None:
     """
-    Guarda datos en un archivo JSON.
+    Save data to a JSON file.
 
-    :param json_filename: Ruta del archivo (se reemplaza si existe).
-    :param dict_data: Datos que se guardan (diccionarios, listas, etc.).
-    :param sort_keys: Ordena las llaves de los diccionarios.
-    :param indent: Espacios de indentación.
+    :param json_filename: File path (replaced if it exists).
+    :param dict_data: Data to save (dictionaries, lists, etc.).
+    :param sort_keys: Sort the dictionary keys.
+    :param indent: Indentation spaces.
     """
     json_data = json.dumps(dict_data, sort_keys=sort_keys, indent=indent)
     Path(json_filename).write_text(json_data, encoding='utf-8')
@@ -33,14 +33,14 @@ def dict_save_to_csv(
     delimiter: str = ';',
 ) -> None:
     """
-    Guarda una lista de diccionarios en un archivo CSV.
+    Save a list of dictionaries to a CSV file.
 
-    Los títulos son las llaves del primer diccionario. Sin datos, el archivo
-    queda vacío.
+    The headers are the keys of the first dictionary. Without data, the file
+    is left empty.
 
-    :param csv_filename: Ruta del archivo (se reemplaza si existe).
-    :param dict_data: Filas, una por diccionario.
-    :param delimiter: Separador de columnas.
+    :param csv_filename: File path (replaced if it exists).
+    :param dict_data: Rows, one per dictionary.
+    :param delimiter: Column separator.
     """
     ruta = Path(csv_filename)
     if len(dict_data) > 0:
@@ -59,13 +59,13 @@ def dict_load_from_csv(
     csv_filename: Ruta, delimiter: str = ';'
 ) -> list[dict[str, str]]:
     """
-    Lee un archivo CSV como una lista de diccionarios.
+    Read a CSV file as a list of dictionaries.
 
-    La primera fila son los títulos, que se usan como llaves.
+    The first row holds the headers, which are used as keys.
 
-    :param csv_filename: Ruta del archivo.
-    :param delimiter: Separador de columnas.
-    :return: Filas, una por diccionario.
+    :param csv_filename: File path.
+    :param delimiter: Column separator.
+    :return: Rows, one per dictionary.
     :rtype: list[dict[str, str]]
     """
     with Path(csv_filename).open(newline='', encoding='utf-8') as input_file:

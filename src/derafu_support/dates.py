@@ -1,21 +1,21 @@
 """
-Funciones para períodos tributarios (AAAAMM), fechas y nombres de meses.
+Functions for tax periods (YYYYMM), dates and month names.
 
-Un período es un entero con el año y el mes (``202611``). Las fechas se
-reciben y entregan como texto ``AAAA-MM-DD``.
+A period is an integer with the year and month (``202611``). Dates are
+received and returned as ``YYYY-MM-DD`` strings.
 """
 
 from datetime import UTC, date, datetime, timedelta
 
-# largo de un período mensual (AAAAMM) y de uno anual (AAAA)
+# length of a monthly period (YYYYMM) and of a yearly one (YYYY)
 _LARGO_PERIODO_MENSUAL = 6
 _LARGO_PERIODO_ANUAL = 4
-# mes que queda al restar o sumar un mes sin ajustar el año
+# month left after subtracting or adding a month without adjusting the year
 _MES_ANTERIOR_A_ENERO = 0
 _MES_SIGUIENTE_A_DICIEMBRE = 13
-# meses del año
+# months in a year
 _MESES = 12
-# partes de una fecha y hora con minutos ("31/12/2026 10:30")
+# parts of a date and time with minutes ("31/12/2026 10:30")
 _PARTES_FECHA_HORA = 2
 _LARGO_HORA_MINUTOS = 5
 
@@ -37,9 +37,9 @@ _NOMBRES_MESES = (
 
 def _hoy() -> date:
     """
-    Entrega la fecha de hoy según la zona horaria local del sistema.
+    Return today's date in the system's local time zone.
 
-    :return: Fecha de hoy.
+    :return: Today's date.
     :rtype: date
     """
     return datetime.now().astimezone().date()
@@ -47,9 +47,9 @@ def _hoy() -> date:
 
 def period_current() -> int:
     """
-    Entrega el período (AAAAMM) actual.
+    Return the current period (YYYYMM).
 
-    :return: Período actual.
+    :return: Current period.
     :rtype: int
     """
     return int(_hoy().strftime('%Y%m'))
@@ -57,10 +57,10 @@ def period_current() -> int:
 
 def period_previous(period: int | None = None) -> int:
     """
-    Entrega el período anterior al indicado.
+    Return the period before the given one.
 
-    :param period: Período (AAAAMM). Si no se indica se usa el actual.
-    :return: Período anterior; de enero pasa a diciembre del año anterior.
+    :param period: Period (YYYYMM). If not given, the current one is used.
+    :return: Previous period; January goes to December of the previous year.
     :rtype: int
     """
     if period is None:
@@ -76,10 +76,10 @@ def period_previous(period: int | None = None) -> int:
 
 def period_next(period: int | None = None) -> int:
     """
-    Entrega el período siguiente al indicado.
+    Return the period after the given one.
 
-    :param period: Período (AAAAMM). Si no se indica se usa el actual.
-    :return: Período siguiente; de diciembre pasa a enero del año siguiente.
+    :param period: Period (YYYYMM). If not given, the current one is used.
+    :return: Next period; December goes to January of the next year.
     :rtype: int
     """
     if period is None:
@@ -95,11 +95,11 @@ def period_next(period: int | None = None) -> int:
 
 def period_range(period_from: int, period_to: int | None = None) -> list[int]:
     """
-    Entrega los períodos entre dos períodos, ambos incluidos.
+    Return the periods between two periods, both included.
 
-    :param period_from: Primer período (AAAAMM).
-    :param period_to: Último período. Si no se indica se usa el actual.
-    :return: Períodos en orden; vacío si el primero es mayor al último.
+    :param period_from: First period (YYYYMM).
+    :param period_to: Last period. If not given, the current one is used.
+    :return: Periods in order; empty if the first is after the last.
     :rtype: list[int]
     """
     if period_to is None:
@@ -114,10 +114,10 @@ def period_range(period_from: int, period_to: int | None = None) -> list[int]:
 
 def period_first_day(period: int) -> str:
     """
-    Entrega el primer día de un período.
+    Return the first day of a period.
 
-    :param period: Período (AAAAMM).
-    :return: Fecha ``AAAA-MM-01``.
+    :param period: Period (YYYYMM).
+    :return: Date ``YYYY-MM-01``.
     :rtype: str
     """
     return str(period)[0:4] + '-' + str(period)[4:] + '-01'
@@ -125,10 +125,10 @@ def period_first_day(period: int) -> str:
 
 def period_last_day(period: int) -> str:
     """
-    Entrega el último día de un período.
+    Return the last day of a period.
 
-    :param period: Período (AAAAMM).
-    :return: Fecha ``AAAA-MM-DD`` del último día del mes.
+    :param period: Period (YYYYMM).
+    :return: Date ``YYYY-MM-DD`` of the last day of the month.
     :rtype: str
     """
     first_day_next_period = date.fromisoformat(
@@ -141,12 +141,13 @@ def period_valid(
     period: int | str, year_from: int = 2000, year_to: int = 2100
 ) -> bool:
     """
-    Indica si un período (AAAAMM) o un año (AAAA) es válido.
+    Tell whether a period (YYYYMM) or a year (YYYY) is valid.
 
-    :param period: Período o año, como número o texto.
-    :param year_from: Primer año aceptado.
-    :param year_to: Último año aceptado.
-    :return: True si es un número de 4 o 6 dígitos con año (y mes) válidos.
+    :param period: Period or year, as a number or a string.
+    :param year_from: First accepted year.
+    :param year_to: Last accepted year.
+    :return: True if it is a 4 or 6 digit number with a valid year (and
+        month).
     :rtype: bool
     """
     try:
@@ -168,19 +169,19 @@ def date_normalize(
     date: str, format_from: str | None = None, format_to: str | None = None
 ) -> str:
     """
-    Cambia el formato de una fecha (por defecto, de DD/MM/AAAA a AAAA-MM-DD).
+    Change the format of a date (by default, from DD/MM/YYYY to YYYY-MM-DD).
 
-    Sin formatos, se reconocen ``DD/MM/AAAA``, ``DD/MM/AAAA HH:MM`` y
-    ``DD/MM/AAAA HH:MM:SS``, y se entregan como ``AAAA-MM-DD``,
-    ``AAAA-MM-DD HH:MM`` y ``AAAA-MM-DD HH:MM:SS``.
+    Without formats, ``DD/MM/YYYY``, ``DD/MM/YYYY HH:MM`` and
+    ``DD/MM/YYYY HH:MM:SS`` are recognized, and returned as ``YYYY-MM-DD``,
+    ``YYYY-MM-DD HH:MM`` and ``YYYY-MM-DD HH:MM:SS``.
 
-    :param date: Fecha en texto.
-    :param format_from: Formato de entrada (``strptime``).
-    :param format_to: Formato de salida (``strftime``).
-    :return: Fecha con el formato de salida.
+    :param date: Date as a string.
+    :param format_from: Input format (``strptime``).
+    :param format_to: Output format (``strftime``).
+    :return: Date in the output format.
     :rtype: str
-    :raises ValueError: Si la fecha no tiene el formato de entrada.
-    :raises TypeError: Si se indica ``format_from`` pero no ``format_to``.
+    :raises ValueError: If the date does not match the input format.
+    :raises TypeError: If ``format_from`` is given but ``format_to`` is not.
     """
     if format_from is None:
         aux = date.split(' ')
@@ -194,11 +195,11 @@ def date_normalize(
         else:
             format_from = '%d/%m/%Y'
             format_to = '%Y-%m-%d'
-    # la zona horaria (UTC) sólo evita una fecha ingenua: no cambia el texto
-    # de salida mientras format_to no pida la zona (%z o %Z)
+    # the time zone (UTC) only avoids a naive datetime: it does not change
+    # the output text unless format_to asks for the zone (%z or %Z)
     date_obj = datetime.strptime(date, format_from).replace(tzinfo=UTC)
     if format_to is None:
-        # con format_from y sin format_to: igual que datetime.strftime(None)
+        # format_from without format_to: same as datetime.strftime(None)
         msg = 'strftime() argument 1 must be str, not None'
         raise TypeError(msg)
     return date_obj.strftime(format_to)
@@ -206,11 +207,11 @@ def date_normalize(
 
 def date_add_days(days: int, from_date: str | None = None) -> str:
     """
-    Suma (o resta) días a una fecha.
+    Add (or subtract) days to a date.
 
-    :param days: Días que se suman; si es negativo, se restan.
-    :param from_date: Fecha ``AAAA-MM-DD``. Si no se indica se usa hoy.
-    :return: Fecha resultante ``AAAA-MM-DD``.
+    :param days: Days to add; if negative, they are subtracted.
+    :param from_date: Date ``YYYY-MM-DD``. If not given, today is used.
+    :return: Resulting date ``YYYY-MM-DD``.
     :rtype: str
     """
     if from_date is None:
@@ -223,14 +224,14 @@ def date_count_days(
     date_from: str | date, date_to: str | date | None = None
 ) -> int:
     """
-    Cuenta los días entre dos fechas, sin importar el orden.
+    Count the days between two dates, regardless of their order.
 
-    Se usa sólo la parte de la fecha (``AAAA-MM-DD``); la hora se ignora.
+    Only the date part (``YYYY-MM-DD``) is used; the time is ignored.
 
-    :param date_from: Fecha (o fecha y hora) de inicio.
-    :param date_to: Fecha (o fecha y hora) de término. Si no se indica se usa
-        hoy.
-    :return: Días entre ambas fechas, siempre positivo o cero.
+    :param date_from: Start date (or date and time).
+    :param date_to: End date (or date and time). If not given, today is
+        used.
+    :return: Days between both dates, always positive or zero.
     :rtype: int
     """
     if date_to is None:
@@ -245,11 +246,11 @@ def date_count_days(
 
 def month_from_string(month: str) -> str:
     """
-    Entrega el número del mes (``01`` a ``12``) a partir de su nombre.
+    Return the month number (``01`` to ``12``) from its name.
 
-    :param month: Nombre del mes en español, sin importar mayúsculas.
-    :return: Número del mes con dos dígitos, o el texto recibido si no es un
-        nombre de mes.
+    :param month: Month name in Spanish, case-insensitive.
+    :return: Two-digit month number, or the given text if it is not a month
+        name.
     :rtype: str
     """
     month_lower = month.lower()
@@ -260,10 +261,10 @@ def month_from_string(month: str) -> str:
 
 def month_from_index(index: int | str) -> str:
     """
-    Entrega el nombre del mes a partir de su índice (0 es enero).
+    Return the month name from its index (0 is January).
 
-    :param index: Índice del mes; se usa el resto de la división por 12.
-    :return: Nombre del mes en español y en minúsculas.
+    :param index: Month index; the remainder of dividing by 12 is used.
+    :return: Month name in Spanish and in lower case.
     :rtype: str
     """
     return _NOMBRES_MESES[int(index) % _MESES]
@@ -271,10 +272,10 @@ def month_from_index(index: int | str) -> str:
 
 def month_from_number(month: int | str) -> str:
     """
-    Entrega el nombre del mes a partir de su número (1 es enero).
+    Return the month name from its number (1 is January).
 
-    :param month: Número del mes.
-    :return: Nombre del mes en español y en minúsculas.
+    :param month: Month number.
+    :return: Month name in Spanish and in lower case.
     :rtype: str
     """
     return month_from_index(int(month) - 1)

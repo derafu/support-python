@@ -1,6 +1,6 @@
 """
-Utilidades generales de Python.
+General-purpose Python utilities.
 
-La librería no depende de Django: las piezas de Django van en cada proyecto
-que las usa.
+The library does not depend on Django: Django-specific pieces live in each
+project that uses them.
 """

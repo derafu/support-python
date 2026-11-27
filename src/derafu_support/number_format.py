@@ -1,11 +1,11 @@
-"""Formato de números según el idioma (separadores de miles y decimales)."""
+"""Locale-aware number formatting (thousands and decimal separators)."""
 
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from babel.core import UnknownLocaleError
 from babel.numbers import format_decimal
 
-# decimales cuando se pide formato con decimales (decimal_digits=True)
+# decimal places when decimals are requested (decimal_digits=True)
 _DECIMALES_POR_DEFECTO = 2
 
 
@@ -13,19 +13,19 @@ def format_number(
     value: object, decimal_digits: object = None, locale: str = 'es_CL'
 ) -> str:
     """
-    Formatea un número con los separadores de miles y decimales del idioma.
+    Format a number with the locale's thousands and decimal separators.
 
-    El número se redondea "hacia arriba desde la mitad" (``ROUND_HALF_UP``)
-    a la cantidad de decimales indicada.
+    The number is rounded "half up" (``ROUND_HALF_UP``) to the given number
+    of decimal places.
 
-    :param value: Número (o texto con un número) a formatear. ``None`` se
-        muestra como ``0``.
-    :param decimal_digits: Cantidad de decimales (entero); ``None`` o
-        ``False`` es 0 y ``True`` es 2.
-    :param locale: Idioma, por ejemplo ``es_CL`` o ``es-CL``.
-    :return: Número formateado. Si el valor no es un número, la cantidad de
-        decimales no es un entero o es negativa, o el idioma no existe, se
-        entrega el valor sin formatear.
+    :param value: Number (or string with a number) to format. ``None`` is
+        shown as ``0``.
+    :param decimal_digits: Number of decimal places (integer); ``None`` or
+        ``False`` is 0 and ``True`` is 2.
+    :param locale: Locale, for example ``es_CL`` or ``es-CL``.
+    :return: Formatted number. If the value is not a number, the number of
+        decimal places is not an integer or is negative, or the locale does
+        not exist, the value is returned unformatted.
     :rtype: str
     """
     if value is None:
@@ -40,10 +40,10 @@ def format_number(
         decimal_digits = _DECIMALES_POR_DEFECTO
     if not isinstance(decimal_digits, int) or decimal_digits < 0:
         return str(numero)
-    # Babel usa "_" para separar idioma y país
+    # Babel uses "_" to separate language and country
     locale = locale.replace('-', '_')
     try:
-        # redondear el valor con Decimal
+        # round the value with Decimal
         numero = numero.quantize(
             Decimal('1.' + '0' * decimal_digits), rounding=ROUND_HALF_UP
         )
@@ -52,5 +52,5 @@ def format_number(
         )
         return format_decimal(numero, format=format_pattern, locale=locale)
     except InvalidOperation, ValueError, UnknownLocaleError:
-        # error en el formateo: se entrega el valor sin formatear
+        # formatting error: the value is returned unformatted
         return str(numero)

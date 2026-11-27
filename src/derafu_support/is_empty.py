@@ -1,4 +1,4 @@
-"""Revisión de valores "vacíos" según reglas por tipo de dato."""
+"""Check for "empty" values using rules per data type."""
 
 from collections.abc import Mapping
 from typing import TypeIs
@@ -6,17 +6,17 @@ from typing import TypeIs
 
 class TipoNoSoportadoError(AttributeError):
     """
-    Tipo de dato que ``is_empty()`` no sabe revisar.
+    Data type that ``is_empty()`` cannot check.
 
-    Hereda de ``AttributeError``, la excepción que se lanzaba antes en este
-    caso, para no romper a quien ya la captura.
+    It inherits from ``AttributeError``, the exception previously raised in
+    this case, so as not to break code that already catches it.
     """
 
     def __init__(self, tipo: type) -> None:
         """
-        Crea el error con el tipo no soportado.
+        Create the error with the unsupported type.
 
-        :param tipo: Tipo del valor recibido.
+        :param tipo: Type of the value received.
         """
         super().__init__(
             'Tipo de dato no soportado por is_empty(): ' + str(tipo)
@@ -25,16 +25,17 @@ class TipoNoSoportadoError(AttributeError):
 
 class NoIndexableError(TypeError):
     """
-    Un valor de la ruta de ``key`` no es un diccionario.
+    A value along the ``key`` path is not a dictionary.
 
-    Es el ``TypeError`` que se lanzaba antes al buscar la llave en ese valor.
+    It is the ``TypeError`` previously raised when looking up the key in
+    that value.
     """
 
     def __init__(self, tipo: type) -> None:
         """
-        Crea el error con el tipo del valor.
+        Create the error with the type of the value.
 
-        :param tipo: Tipo del valor que no es diccionario.
+        :param tipo: Type of the value that is not a dictionary.
         """
         super().__init__(
             f"'{tipo.__name__}' no se puede indexar con una llave"
@@ -43,10 +44,10 @@ class NoIndexableError(TypeError):
 
 def _es_mapeo(valor: object) -> TypeIs[Mapping[object, object]]:
     """
-    Indica si un valor es un diccionario.
+    Tell whether a value is a dictionary.
 
-    :param valor: Valor a revisar.
-    :return: True si es un ``dict``.
+    :param valor: Value to check.
+    :return: True if it is a ``dict``.
     :rtype: bool
     """
     return isinstance(valor, dict)
@@ -56,10 +57,10 @@ def _es_coleccion(
     valor: object,
 ) -> TypeIs[list[object] | tuple[object, ...] | set[object]]:
     """
-    Indica si un valor es una lista, una tupla o un conjunto.
+    Tell whether a value is a list, a tuple or a set.
 
-    :param valor: Valor a revisar.
-    :return: True si es ``list``, ``tuple`` o ``set``.
+    :param valor: Value to check.
+    :return: True if it is a ``list``, ``tuple`` or ``set``.
     :rtype: bool
     """
     return isinstance(valor, list | tuple | set)
@@ -67,24 +68,24 @@ def _es_coleccion(
 
 def _is_empty_dict(var: Mapping[object, object], key: str | None) -> bool:
     """
-    Indica si un diccionario, o el valor de una de sus llaves, está vacío.
+    Tell whether a dictionary, or the value of one of its keys, is empty.
 
-    :param var: Diccionario a revisar.
-    :param key: Llave (o ruta ``a.b.c``) a revisar; si es None se revisa que
-        el diccionario tenga llaves.
-    :return: True si está vacío, o si la llave no existe o su valor está
-        vacío.
+    :param var: Dictionary to check.
+    :param key: Key (or ``a.b.c`` path) to check; if None, it checks that
+        the dictionary has keys.
+    :return: True if it is empty, or if the key does not exist or its value
+        is empty.
     :rtype: bool
     """
-    # si no hay una llave específica, se revisa que el diccionario tenga algo
+    # without a specific key, check that the dictionary has something
     if key is None:
         return len(var) == 0
-    # buscar el valor final de la variable según la llave definida
+    # look up the final value of the variable following the given key
     valor: object = var
     for k in key.split('.'):
         if not _es_mapeo(valor):
-            # en una lista, tupla, conjunto o texto sin la llave, la llave no
-            # existe; en otro caso no se puede buscar la llave
+            # in a list, tuple, set or string without the key, the key does
+            # not exist; otherwise the key cannot be looked up
             if (_es_coleccion(valor) or isinstance(valor, str)) and (
                 k not in valor
             ):
@@ -93,46 +94,45 @@ def _is_empty_dict(var: Mapping[object, object], key: str | None) -> bool:
         if k not in valor:
             return True
         valor = valor[k]
-    # la llave existe en el diccionario: hay que ver si tiene un valor no vacío
+    # the key exists in the dictionary: check whether its value is non-empty
     return is_empty(valor)
 
 
 def is_empty(var: object, key: str | None = None) -> bool:
     """
-    Indica si una variable está "vacía", con reglas según su tipo.
+    Tell whether a variable is "empty", with rules based on its type.
 
-    - ``None``: siempre vacía.
-    - Diccionarios: sin llaves; o, si se indica ``key``, la llave no existe o
-      su valor está vacío. ``key`` puede ser una ruta (``a.b.c``).
-    - Listas, tuplas y conjuntos: largo 0.
-    - Textos: ``''``, ``'0'`` o ``'0.0'``.
-    - Enteros y decimales: 0. ``False`` cuenta como 0 (``bool`` es un
+    - ``None``: always empty.
+    - Dictionaries: no keys; or, if ``key`` is given, the key does not exist
+      or its value is empty. ``key`` can be a path (``a.b.c``).
+    - Lists, tuples and sets: length 0.
+    - Strings: ``''``, ``'0'`` or ``'0.0'``.
+    - Integers and floats: 0. ``False`` counts as 0 (``bool`` is an
       ``int``).
 
-    :param var: Variable a revisar.
-    :param key: Llave (o ruta de llaves) a revisar si ``var`` es un
-        diccionario.
-    :return: True si la variable está vacía según las reglas anteriores.
+    :param var: Variable to check.
+    :param key: Key (or path of keys) to check if ``var`` is a dictionary.
+    :return: True if the variable is empty according to the rules above.
     :rtype: bool
-    :raises TipoNoSoportadoError: Si el tipo de ``var`` no está entre los
-        anteriores.
-    :raises NoIndexableError: Si la ruta de ``key`` pasa por un valor que no
-        es diccionario y no se puede buscar la llave en él.
+    :raises TipoNoSoportadoError: If the type of ``var`` is not one of the
+        above.
+    :raises NoIndexableError: If the ``key`` path goes through a value that
+        is not a dictionary and the key cannot be looked up in it.
     """
-    # si la variable es None no se valida el resto porque es vacía
+    # if the variable is None the rest is not checked because it is empty
     if var is None:
         return True
-    # diccionarios
+    # dictionaries
     if _es_mapeo(var):
         return _is_empty_dict(var, key)
-    # listas, tuplas y conjuntos
+    # lists, tuples and sets
     if _es_coleccion(var):
         return len(var) == 0
-    # textos
+    # strings
     if isinstance(var, str):
         return var in {'0', '0.0', ''}
-    # enteros (incluye bool) y decimales
+    # integers (including bool) and floats
     if isinstance(var, int | float):
         return var == 0
-    # tipo de dato no soportado para validar si es vacío
+    # data type not supported for the emptiness check
     raise TipoNoSoportadoError(type(var))

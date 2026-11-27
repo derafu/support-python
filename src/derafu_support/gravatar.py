@@ -1,16 +1,16 @@
-"""Avatar de Gravatar a partir de un correo electrónico."""
+"""Gravatar avatar from an email address."""
 
 import hashlib
 
 
 def email_md5(email: str) -> str:
     """
-    Entrega el hash MD5 de un correo, como lo usa Gravatar.
+    Return the MD5 hash of an email address, as used by Gravatar.
 
-    El MD5 no se usa como protección: es el identificador que pide Gravatar.
+    MD5 is not used for security: it is the identifier Gravatar requires.
 
-    :param email: Correo electrónico.
-    :return: Hash MD5 en hexadecimal.
+    :param email: Email address.
+    :return: MD5 hash in hexadecimal.
     :rtype: str
     """
     return hashlib.md5(
@@ -20,10 +20,10 @@ def email_md5(email: str) -> str:
 
 def gravatar_url(email: str) -> str:
     """
-    Entrega la URL de la imagen de Gravatar de un correo.
+    Return the URL of the Gravatar image of an email address.
 
-    :param email: Correo electrónico.
-    :return: URL de la imagen.
+    :param email: Email address.
+    :return: Image URL.
     :rtype: str
     """
     return 'https://gravatar.com/avatar/' + email_md5(email)

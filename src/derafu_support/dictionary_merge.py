@@ -1,14 +1,14 @@
-"""Combinación recursiva de diccionarios."""
+"""Recursive merge of dictionaries."""
 
 from typing import TypeIs
 
 
 def _es_diccionario(valor: object) -> TypeIs[dict[object, object]]:
     """
-    Indica si un valor es un diccionario.
+    Tell whether a value is a dictionary.
 
-    :param valor: Valor a revisar.
-    :return: True si es un ``dict``.
+    :param valor: Value to check.
+    :return: True if it is a ``dict``.
     :rtype: bool
     """
     return isinstance(valor, dict)
@@ -20,17 +20,17 @@ def merge[K, V](
     path: list[str] | None = None,
 ) -> dict[K, V]:
     """
-    Combina ``dictionary_b`` dentro de ``dictionary_a``.
+    Merge ``dictionary_b`` into ``dictionary_a``.
 
-    Las llaves de ``dictionary_b`` se agregan a ``dictionary_a``. Si una
-    llave está en ambos y los dos valores son diccionarios, se combinan de la
-    misma forma; si no, gana el valor de ``dictionary_b`` (las listas se
-    reemplazan, no se juntan).
+    The keys of ``dictionary_b`` are added to ``dictionary_a``. If a key is
+    in both and both values are dictionaries, they are merged the same way;
+    otherwise, the value of ``dictionary_b`` wins (lists are replaced, not
+    joined).
 
-    :param dictionary_a: Diccionario que se modifica.
-    :param dictionary_b: Diccionario con los valores que se agregan.
-    :param path: Llaves recorridas hasta este nivel (uso interno).
-    :return: ``dictionary_a`` modificado.
+    :param dictionary_a: Dictionary that is modified.
+    :param dictionary_b: Dictionary with the values to add.
+    :param path: Keys walked down to this level (internal use).
+    :return: The modified ``dictionary_a``.
     :rtype: dict
     """
     if path is None:

@@ -1,10 +1,10 @@
-"""Registro (log) de mensajes en memoria."""
+"""In-memory message log."""
 
 import inspect
 from collections.abc import Mapping
 from datetime import datetime
 from types import FrameType
-from typing import ClassVar, Literal, overload
+from typing import ClassVar, Literal, overload, override
 
 _NIVELES = {
     10: 'DEBUG',
@@ -13,13 +13,13 @@ _NIVELES = {
     40: 'ERROR',
     50: 'CRITICAL',
 }
-# niveles de la pila que separan al llamador real de LogMessage.__init__:
-# el método de MemoryLogging que registra (debug, info, ...) y __write
+# stack levels between the real caller and LogMessage.__init__: the
+# MemoryLogging method that logs (debug, info, ...) and __write
 _NIVELES_INTERNOS = 2
 
 
 class LogMessage:
-    """Mensaje de un log, con los datos de quién lo registró."""
+    """Log message, with data about who logged it."""
 
     log_format: ClassVar[str] = (
         '%(created)s %(category)s %(level_name)s: %(message)s '
@@ -36,20 +36,20 @@ class LogMessage:
         caller_level: int | None = None,
     ) -> None:
         """
-        Crea el mensaje y registra el módulo, archivo y línea del llamador.
+        Create the message and record the caller's module, file and line.
 
-        :param level: Nivel del mensaje (10 DEBUG a 50 CRITICAL).
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría; por defecto ``general``.
-        :param data: Datos adicionales.
-        :param caller_level: Cuántos niveles de la pila subir para llegar al
-            llamador; por defecto 1 (quien llamó al método del log).
+        :param level: Message level (10 DEBUG to 50 CRITICAL).
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Category; ``general`` by default.
+        :param data: Additional data.
+        :param caller_level: How many stack levels to go up to reach the
+            caller; 1 by default (whoever called the log method).
         """
         caller_level = (
             1 if caller_level is None else int(caller_level)
         ) + _NIVELES_INTERNOS
-        # datos del mensaje del log
+        # log message data
         self.created = (
             datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S')
         )
@@ -58,12 +58,12 @@ class LogMessage:
         self.message = message
         self.args = args
         self.data = data
-        # agregar los datos del que llamó al log
+        # add the data of whoever called the log
         caller_frame = self._get_caller_frame(caller_level)
         frame_info = inspect.getframeinfo(caller_frame)
         modulo = inspect.getmodule(caller_frame)
-        # sin módulo (por ejemplo, código ejecutado con exec) se usa el
-        # nombre del módulo del frame
+        # without a module (for example, code run with exec) the frame's
+        # module name is used
         self.module: str = (
             modulo.__name__
             if modulo is not None
@@ -76,28 +76,29 @@ class LogMessage:
     @property
     def level_name(self) -> str:
         """
-        Entrega el nombre del nivel del mensaje.
+        Name of the message level.
 
-        :return: Nombre del nivel (``DEBUG``, ``INFO``, etc.).
+        :return: Level name (``DEBUG``, ``INFO``, etc.).
         :rtype: str
-        :raises KeyError: Si el nivel no es uno de los estándar.
+        :raises KeyError: If the level is not a standard one.
         """
         return _NIVELES[int(self.level)]
 
+    @override
     def __str__(self) -> str:
         """
-        Entrega el mensaje con el formato del log.
+        Return the message in the log format.
 
-        :return: Mensaje formateado con ``log_format``.
+        :return: Message formatted with ``log_format``.
         :rtype: str
         """
         return self.log_format % self.to_dict()
 
     def to_dict(self) -> dict[str, object]:
         """
-        Entrega los datos del mensaje.
+        Return the message data.
 
-        :return: Datos del mensaje y de quién lo registró.
+        :return: Data of the message and of who logged it.
         :rtype: dict[str, object]
         """
         return {
@@ -117,19 +118,20 @@ class LogMessage:
     @staticmethod
     def _get_caller_frame(caller_level: int | None = None) -> FrameType:
         """
-        Obtiene el frame del llamador N niveles hacia arriba en la pila.
+        Get the caller's frame N levels up the stack.
 
-        Si la pila es más corta, se entrega el último frame disponible.
+        If the stack is shorter, the last available frame is returned.
 
-        :param caller_level: Niveles que se sube en la pila.
-        :return: Frame del llamador.
+        :param caller_level: Levels to go up the stack.
+        :return: Caller's frame.
         :rtype: FrameType
-        :raises RuntimeError: Si el intérprete no permite leer la pila.
+        :raises RuntimeError: If the interpreter does not allow reading the
+            stack.
         """
         caller_level = (0 if caller_level is None else caller_level) + 1
         caller_frame = inspect.currentframe()
         if caller_frame is None:
-            # sólo pasa en intérpretes sin soporte de frames
+            # only happens in interpreters without frame support
             msg = 'El intérprete no permite leer la pila de llamadas'
             raise RuntimeError(msg)
         for _ in range(caller_level):
@@ -140,9 +142,9 @@ class LogMessage:
 
 
 class MemoryLogging:
-    """Log que guarda los mensajes en memoria, en una lista."""
+    """Log that keeps the messages in memory, in a list."""
 
-    # niveles de severidad de los mensajes, de menor a mayor
+    # message severity levels, from lowest to highest
     DEBUG: ClassVar[int] = 10
     INFO: ClassVar[int] = 20
     WARNING: ClassVar[int] = 30
@@ -156,12 +158,12 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> None:
         """
-        Crea el log vacío.
+        Create the empty log.
 
-        :param level: Nivel mínimo que se guarda; por defecto ``INFO``.
-        :param category: Categoría por defecto de los mensajes.
-        :param caller_level: Niveles de la pila por defecto para identificar
-            al llamador.
+        :param level: Minimum level that is kept; ``INFO`` by default.
+        :param category: Default category of the messages.
+        :param caller_level: Default stack levels used to identify the
+            caller.
         """
         self.__logs: list[LogMessage] = []
         self.logging_level = level if level is not None else MemoryLogging.INFO
@@ -178,16 +180,15 @@ class MemoryLogging:
         caller_level: int | None,
     ) -> LogMessage:
         """
-        Crea un mensaje y lo guarda si alcanza el nivel mínimo.
+        Create a message and keep it if it reaches the minimum level.
 
-        :param level: Nivel del mensaje.
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría; si es None se usa la por defecto.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila; si es None se usa el por
-            defecto.
-        :return: Mensaje creado (se guarde o no).
+        :param level: Message level.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Category; if None, the default one is used.
+        :param data: Additional data.
+        :param caller_level: Stack levels; if None, the default is used.
+        :return: Created message (whether it is kept or not).
         :rtype: LogMessage
         """
         if category is None:
@@ -211,14 +212,14 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> LogMessage:
         """
-        Registra un mensaje de nivel DEBUG.
+        Log a DEBUG level message.
 
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría del mensaje.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila para identificar al llamador.
-        :return: Mensaje creado.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Message category.
+        :param data: Additional data.
+        :param caller_level: Stack levels used to identify the caller.
+        :return: Created message.
         :rtype: LogMessage
         """
         return self.__write(
@@ -234,14 +235,14 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> LogMessage:
         """
-        Registra un mensaje de nivel INFO.
+        Log a INFO level message.
 
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría del mensaje.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila para identificar al llamador.
-        :return: Mensaje creado.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Message category.
+        :param data: Additional data.
+        :param caller_level: Stack levels used to identify the caller.
+        :return: Created message.
         :rtype: LogMessage
         """
         return self.__write(
@@ -257,14 +258,14 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> LogMessage:
         """
-        Registra un mensaje de nivel WARNING.
+        Log a WARNING level message.
 
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría del mensaje.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila para identificar al llamador.
-        :return: Mensaje creado.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Message category.
+        :param data: Additional data.
+        :param caller_level: Stack levels used to identify the caller.
+        :return: Created message.
         :rtype: LogMessage
         """
         return self.__write(
@@ -280,14 +281,14 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> LogMessage:
         """
-        Registra un mensaje de nivel ERROR.
+        Log a ERROR level message.
 
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría del mensaje.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila para identificar al llamador.
-        :return: Mensaje creado.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Message category.
+        :param data: Additional data.
+        :param caller_level: Stack levels used to identify the caller.
+        :return: Created message.
         :rtype: LogMessage
         """
         return self.__write(
@@ -303,14 +304,14 @@ class MemoryLogging:
         caller_level: int | None = None,
     ) -> LogMessage:
         """
-        Registra un mensaje de nivel CRITICAL.
+        Log a CRITICAL level message.
 
-        :param message: Texto del mensaje.
-        :param args: Argumentos asociados al mensaje.
-        :param category: Categoría del mensaje.
-        :param data: Datos adicionales.
-        :param caller_level: Niveles de la pila para identificar al llamador.
-        :return: Mensaje creado.
+        :param message: Message text.
+        :param args: Arguments associated with the message.
+        :param category: Message category.
+        :param data: Additional data.
+        :param caller_level: Stack levels used to identify the caller.
+        :return: Created message.
         :rtype: LogMessage
         """
         return self.__write(
@@ -327,11 +328,11 @@ class MemoryLogging:
         self, as_dict: bool = False
     ) -> list[LogMessage] | list[dict[str, object]]:
         """
-        Entrega los mensajes guardados.
+        Return the kept messages.
 
-        :param as_dict: Entregar cada mensaje como diccionario
-            (``LogMessage.to_dict()``) en vez de como ``LogMessage``.
-        :return: Mensajes, del más antiguo al más reciente.
+        :param as_dict: Return each message as a dictionary
+            (``LogMessage.to_dict()``) instead of as a ``LogMessage``.
+        :return: Messages, from oldest to newest.
         :rtype: list[LogMessage] | list[dict[str, object]]
         """
         if as_dict:
@@ -348,11 +349,11 @@ class MemoryLogging:
         self, as_dict: bool = False
     ) -> list[LogMessage] | list[dict[str, object]]:
         """
-        Entrega los mensajes guardados y vacía el log.
+        Return the kept messages and empty the log.
 
-        :param as_dict: Entregar cada mensaje como diccionario en vez de como
+        :param as_dict: Return each message as a dictionary instead of as a
             ``LogMessage``.
-        :return: Mensajes que había en el log.
+        :return: Messages that were in the log.
         :rtype: list[LogMessage] | list[dict[str, object]]
         """
         logs = (

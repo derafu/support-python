@@ -1,14 +1,14 @@
 .PHONY: install-dev lint typecheck test check clean
 
-# Python usado para crear el entorno (3.14): `make PYTHON=python3.14`.
+# Python used to create the environment (3.14): `make PYTHON=python3.14`.
 PYTHON ?= python3
 
-# Se llama "venv" porque [tool.pyright] busca el entorno ahí.
+# Named "venv" because [tool.pyright] looks for the environment there.
 VENV = venv
 VENV_READY = $(VENV)/.installed
 
-# Se crea en el primer comando y se reinstala cuando cambian las
-# dependencias.
+# Created on the first command and reinstalled when the dependencies
+# change.
 $(VENV_READY): pyproject.toml
 	test -x $(VENV)/bin/python || $(PYTHON) -m venv $(VENV)
 	$(VENV)/bin/python -m pip install --upgrade pip

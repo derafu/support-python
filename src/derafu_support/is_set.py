@@ -1,4 +1,4 @@
-"""Revisión de llaves (o rutas de llaves) definidas en un diccionario."""
+"""Check for keys (or key paths) defined in a dictionary."""
 
 from collections.abc import Mapping
 from typing import TypeIs
@@ -6,26 +6,26 @@ from typing import TypeIs
 
 class IsSetArgumentoError(AttributeError):
     """
-    Argumento inválido para ``is_set()``.
+    Invalid argument for ``is_set()``.
 
-    Hereda de ``AttributeError``, la excepción que se lanzaba antes en estos
-    casos, para no romper a quien ya la captura.
+    It inherits from ``AttributeError``, the exception previously raised in
+    these cases, so as not to break code that already catches it.
     """
 
 
 class SinDiccionarioError(IsSetArgumentoError):
-    """No se entregó un diccionario a ``is_set()``."""
+    """No dictionary was given to ``is_set()``."""
 
     def __init__(self) -> None:
-        """Crea el error con su mensaje."""
+        """Create the error with its message."""
         super().__init__('No se especificó un diccionario')
 
 
 class SinLlavesError(IsSetArgumentoError):
-    """No se entregaron las llaves a ``is_set()``."""
+    """No keys were given to ``is_set()``."""
 
     def __init__(self) -> None:
-        """Crea el error con su mensaje."""
+        """Create the error with its message."""
         super().__init__(
             'Se espera que se especifiquen las llaves del diccionario'
         )
@@ -33,17 +33,17 @@ class SinLlavesError(IsSetArgumentoError):
 
 class NoIndexableError(TypeError):
     """
-    Un valor intermedio de la ruta no se puede indexar con una llave.
+    An intermediate value of the path cannot be indexed with a key.
 
-    Es el ``TypeError`` que se lanzaba antes al indexar, por ejemplo, un
-    texto o un número.
+    It is the ``TypeError`` previously raised when indexing, for example, a
+    string or a number.
     """
 
     def __init__(self, tipo: type) -> None:
         """
-        Crea el error con el tipo del valor.
+        Create the error with the type of the value.
 
-        :param tipo: Tipo del valor que no se puede indexar.
+        :param tipo: Type of the value that cannot be indexed.
         """
         super().__init__(
             f"'{tipo.__name__}' no se puede indexar con una llave"
@@ -52,10 +52,10 @@ class NoIndexableError(TypeError):
 
 def _es_dict(valor: object) -> TypeIs[dict[object, object]]:
     """
-    Indica si un valor es un ``dict``.
+    Tell whether a value is a ``dict``.
 
-    :param valor: Valor a revisar.
-    :return: True si es un ``dict``.
+    :param valor: Value to check.
+    :return: True if it is a ``dict``.
     :rtype: bool
     """
     return isinstance(valor, dict)
@@ -63,10 +63,10 @@ def _es_dict(valor: object) -> TypeIs[dict[object, object]]:
 
 def _es_mapeo(valor: object) -> TypeIs[Mapping[object, object]]:
     """
-    Indica si un valor es un diccionario (o un mapeo).
+    Tell whether a value is a dictionary (or a mapping).
 
-    :param valor: Valor a revisar.
-    :return: True si es un ``Mapping``.
+    :param valor: Value to check.
+    :return: True if it is a ``Mapping``.
     :rtype: bool
     """
     return isinstance(valor, Mapping)
@@ -74,16 +74,16 @@ def _es_mapeo(valor: object) -> TypeIs[Mapping[object, object]]:
 
 def is_set(var: object, keys: str | None = None) -> bool:
     """
-    Indica si una llave (o ruta ``a.b.c``) existe y no es ``None``.
+    Tell whether a key (or ``a.b.c`` path) exists and is not ``None``.
 
-    :param var: Diccionario donde se busca.
-    :param keys: Llave o ruta de llaves separadas por punto.
-    :return: True si la ruta existe completa y su valor no es ``None``.
+    :param var: Dictionary to search.
+    :param keys: Key, or path of keys separated by dots.
+    :return: True if the whole path exists and its value is not ``None``.
     :rtype: bool
-    :raises SinDiccionarioError: Si ``var`` no es un diccionario.
-    :raises SinLlavesError: Si no se indican las llaves.
-    :raises NoIndexableError: Si un valor intermedio de la ruta no es un
-        diccionario (por ejemplo, un texto o un número).
+    :raises SinDiccionarioError: If ``var`` is not a dictionary.
+    :raises SinLlavesError: If no keys are given.
+    :raises NoIndexableError: If an intermediate value of the path is not a
+        dictionary (for example, a string or a number).
     """
     if not _es_dict(var):
         raise SinDiccionarioError

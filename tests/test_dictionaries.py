@@ -1,4 +1,4 @@
-"""Pruebas de ``is_empty``, ``is_set``, ``dictionary_merge`` y archivos."""
+"""Tests for ``is_empty``, ``is_set``, ``dictionary_merge`` and files."""
 
 from pathlib import Path
 
@@ -37,13 +37,13 @@ NO_VACIOS: list[object] = [
 
 @pytest.mark.parametrize('valor', VACIOS)
 def test_vacios(valor: object) -> None:
-    """Valores vacíos según su tipo."""
+    """Empty values according to their type."""
     assert is_empty(valor) is True
 
 
 @pytest.mark.parametrize('valor', NO_VACIOS)
 def test_no_vacios(valor: object) -> None:
-    """Valores no vacíos según su tipo."""
+    """Non-empty values according to their type."""
     assert is_empty(valor) is False
 
 
@@ -62,12 +62,12 @@ def test_no_vacios(valor: object) -> None:
 def test_vacios_con_llave(
     datos: dict[str, object], llave: str, vacio: bool
 ) -> None:
-    """Rutas de llaves en diccionarios anidados."""
+    """Key paths in nested dictionaries."""
     assert is_empty(datos, llave) is vacio
 
 
 def test_vacio_errores() -> None:
-    """Tipos no soportados y rutas que no se pueden recorrer."""
+    """Unsupported types and paths that cannot be walked."""
     with pytest.raises(TipoNoSoportadoError):
         is_empty(object())
     with pytest.raises(AttributeError):
@@ -79,7 +79,7 @@ def test_vacio_errores() -> None:
 
 
 def test_is_set() -> None:
-    """Rutas definidas, faltantes o con None."""
+    """Defined, missing and None paths."""
     datos: dict[str, object] = {'a': {'b': 1, 'c': None}}
     assert is_set(datos, 'a.b') is True
     assert is_set(datos, 'a.c') is False
@@ -93,7 +93,7 @@ def test_is_set() -> None:
 
 
 def test_merge() -> None:
-    """Combina recursivamente y gana el segundo diccionario."""
+    """Merges recursively and the second dictionary wins."""
     a: dict[str, object] = {
         'otro': 1,
         'mas': {},
@@ -111,7 +111,7 @@ def test_merge() -> None:
 
 
 def test_json(tmp_path: Path) -> None:
-    """Guarda datos como JSON con indentación."""
+    """Saves data as indented JSON."""
     ruta = tmp_path / 'datos.json'
     dict_save_to_json(ruta, {'b': 1, 'a': [1, 2]}, sort_keys=True, indent=1)
     assert ruta.read_text(encoding='utf-8') == (
@@ -120,7 +120,7 @@ def test_json(tmp_path: Path) -> None:
 
 
 def test_csv(tmp_path: Path) -> None:
-    """Guarda y lee CSV; sin filas el archivo queda vacío."""
+    """Saves and reads CSV; without rows the file is left empty."""
     ruta = tmp_path / 'datos.csv'
     filas = [{'a': 'ñ', 'b': 1}, {'a': 'x', 'b': 2}]
     dict_save_to_csv(ruta, filas)

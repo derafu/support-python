@@ -1,4 +1,4 @@
-"""Funciones de codificación de datos."""
+"""Data encoding functions."""
 
 import base64
 import re
@@ -6,15 +6,15 @@ import re
 
 def base64_decode(data: bytes, altchars: bytes = b'+/') -> bytes:
     """
-    Decodifica datos en base64, con el relleno (``=``) opcional.
+    Decode base64 data, with optional padding (``=``).
 
-    Antes de decodificar se quitan los caracteres que no son de base64 (por
-    ejemplo, saltos de línea) y se completa el relleno que falte.
-    Basado en https://stackoverflow.com/a/9807138.
+    Before decoding, characters that are not base64 (for example, line
+    breaks) are removed and any missing padding is added.
+    Based on https://stackoverflow.com/a/9807138.
 
-    :param data: Datos en base64 (texto ASCII en bytes).
-    :param altchars: Los dos caracteres usados en lugar de ``+`` y ``/``.
-    :return: Datos decodificados.
+    :param data: Base64 data (ASCII text as bytes).
+    :param altchars: The two characters used instead of ``+`` and ``/``.
+    :return: Decoded data.
     :rtype: bytes
     """
     data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)

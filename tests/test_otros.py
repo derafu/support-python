@@ -1,4 +1,4 @@
-"""Pruebas de ``encoding``, ``gravatar``, ``number_format`` y ``log``."""
+"""Tests for ``encoding``, ``gravatar``, ``number_format`` and ``log``."""
 
 import base64
 
@@ -9,14 +9,14 @@ from derafu_support.gravatar import email_md5, gravatar_url
 from derafu_support.log import LogMessage, MemoryLogging
 from derafu_support.number_format import format_number
 
-# mensajes que registra _registrar(), uno por nivel
+# messages logged by _registrar(), one per level
 MENSAJES_POR_NIVEL = 5
-# nivel que no es uno de los estándar
+# level that is not a standard one
 NIVEL_NO_ESTANDAR = 15
 
 
 def test_base64_sin_relleno_y_con_saltos() -> None:
-    """Se decodifica aunque falte el relleno y haya saltos de línea."""
+    """It decodes even with missing padding and line breaks."""
     codificado = base64.b64encode(b'hola mundo!').rstrip(b'=')
     assert base64_decode(codificado[:4] + b'\n' + codificado[4:]) == (
         b'hola mundo!'
@@ -24,7 +24,7 @@ def test_base64_sin_relleno_y_con_saltos() -> None:
 
 
 def test_gravatar() -> None:
-    """El MD5 del correo forma la URL de Gravatar."""
+    """The MD5 of the email address builds the Gravatar URL."""
     assert email_md5('a@b.cl') == '9912467c575f5763cc6be100baf86037'
     assert gravatar_url('a@b.cl') == (
         'https://gravatar.com/avatar/9912467c575f5763cc6be100baf86037'
@@ -49,12 +49,12 @@ def test_gravatar() -> None:
 def test_format_number(
     valor: object, decimales: object, idioma: str, esperado: str
 ) -> None:
-    """Formato con separadores del idioma y casos sin formato."""
+    """Formatting with locale separators, and unformatted cases."""
     assert format_number(valor, decimales, idioma) == esperado
 
 
 def _registrar(log: MemoryLogging) -> None:
-    """Registra un mensaje de cada nivel (función que llama al log)."""
+    """Log one message per level (function that calls the log)."""
     log.debug('d')
     log.info('i', args={'x': 1}, data=[1])
     log.warning('w', category='otra')
@@ -63,7 +63,7 @@ def _registrar(log: MemoryLogging) -> None:
 
 
 def test_log_en_memoria() -> None:
-    """Guarda desde el nivel indicado y registra quién llamó."""
+    """Keeps messages from the given level and records the caller."""
     log = MemoryLogging(category='cat')
     _registrar(log)
     mensajes = log.get_all()
@@ -85,14 +85,14 @@ def test_log_en_memoria() -> None:
 
 
 def test_log_nivel_debug() -> None:
-    """Con nivel DEBUG se guardan todos los mensajes."""
+    """With DEBUG level all messages are kept."""
     log = MemoryLogging(MemoryLogging.DEBUG)
     _registrar(log)
     assert len(log.flush()) == MENSAJES_POR_NIVEL
 
 
 def test_log_message_directo() -> None:
-    """Un mensaje creado directamente usa la categoría ``general``."""
+    """A message created directly uses the ``general`` category."""
     mensaje = LogMessage(MemoryLogging.WARNING, 'm', caller_level=-2)
     assert mensaje.category == 'general'
     assert mensaje.to_dict()['level_name'] == 'WARNING'

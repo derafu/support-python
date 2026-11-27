@@ -1,4 +1,4 @@
-"""Pruebas de ``dates``."""
+"""Tests for ``dates``."""
 
 from datetime import date, datetime
 
@@ -6,7 +6,7 @@ import pytest
 
 from derafu_support import dates
 
-# días entre el 1 de enero y el 1 de marzo de 2026 (31 + 28)
+# days between January 1 and March 1, 2026 (31 + 28)
 DIAS_ENERO_A_MARZO_2026 = 59
 
 
@@ -22,13 +22,13 @@ DIAS_ENERO_A_MARZO_2026 = 59
 def test_periodo_anterior_y_siguiente(
     periodo: int, anterior: int, siguiente: int
 ) -> None:
-    """Los períodos cambian de año en enero y diciembre."""
+    """Periods roll over the year in January and December."""
     assert dates.period_previous(periodo) == anterior
     assert dates.period_next(periodo) == siguiente
 
 
 def test_periodo_actual() -> None:
-    """El período actual es el año y mes de hoy."""
+    """The current period is today's year and month."""
     hoy = datetime.now().astimezone().date()
     assert dates.period_current() == hoy.year * 100 + hoy.month
     assert dates.period_previous() == dates.period_previous(
@@ -38,7 +38,7 @@ def test_periodo_actual() -> None:
 
 
 def test_rango_de_periodos() -> None:
-    """El rango incluye ambos extremos y cruza el año."""
+    """The range includes both ends and crosses the year."""
     assert dates.period_range(202611, 202602 + 100) == [
         202611,
         202612,
@@ -49,7 +49,7 @@ def test_rango_de_periodos() -> None:
 
 
 def test_primer_y_ultimo_dia() -> None:
-    """Primer y último día del mes, incluido febrero bisiesto."""
+    """First and last day of the month, including a leap February."""
     assert dates.period_first_day(202402) == '2024-02-01'
     assert dates.period_last_day(202402) == '2024-02-29'
     assert dates.period_last_day(202612) == '2026-12-31'
@@ -68,7 +68,7 @@ def test_primer_y_ultimo_dia() -> None:
     ],
 )
 def test_periodo_valido(periodo: int | str, valido: bool) -> None:
-    """Sólo son válidos años y períodos con año y mes en rango."""
+    """Only years and periods with year and month in range are valid."""
     assert dates.period_valid(periodo) is valido
 
 
@@ -81,12 +81,12 @@ def test_periodo_valido(periodo: int | str, valido: bool) -> None:
     ],
 )
 def test_normalizar_fecha(fecha: str, normalizada: str) -> None:
-    """Las fechas DD/MM/AAAA (con o sin hora) pasan a AAAA-MM-DD."""
+    """DD/MM/YYYY dates (with or without time) become YYYY-MM-DD."""
     assert dates.date_normalize(fecha) == normalizada
 
 
 def test_normalizar_fecha_con_formatos() -> None:
-    """Se pueden indicar los formatos de entrada y salida."""
+    """The input and output formats can be given."""
     assert dates.date_normalize('31/12/2026', '%d/%m/%Y', '%Y%m%d') == (
         '20261231'
     )
@@ -97,7 +97,7 @@ def test_normalizar_fecha_con_formatos() -> None:
 
 
 def test_sumar_y_contar_dias() -> None:
-    """Suma de días y conteo de días entre fechas."""
+    """Adding days and counting days between dates."""
     assert dates.date_add_days(1, '2024-02-28') == '2024-02-29'
     assert dates.date_add_days(-1, '2026-01-01') == '2025-12-31'
     assert dates.date_count_days('2026-03-01', '2026-01-01') == (
@@ -110,7 +110,7 @@ def test_sumar_y_contar_dias() -> None:
 
 
 def test_meses() -> None:
-    """Conversión entre nombre, índice y número de mes."""
+    """Conversion between month name, index and number."""
     assert dates.month_from_string('Marzo') == '03'
     assert dates.month_from_string('otro') == 'otro'
     assert dates.month_from_index(0) == 'enero'

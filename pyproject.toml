@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "derafu-support"
 version = "1.0.0"
-description = "Utilidades generales de Python (fechas, diccionarios, números y log)."
+description = "General-purpose Python utilities (dates, dictionaries, numbers and logging)."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -15,11 +15,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-# Herramientas de desarrollo (lint, tipos y pruebas):
+# Development tools (lint, types and tests):
 # `pip install --group dev`
 dev = [
-  # mismas versiones que usan los proyectos, para probar la librería con
-  # ellas
+  # same versions the projects use, to test the library against them
   "Babel==2.18.0",
   "mypy==2.4.0",
   "pyright==1.1.414",
@@ -44,43 +43,52 @@ fix = false
 [tool.ruff.lint]
 select = [
   "D",    # pydocstyle: docstrings
-  "F",    # Pyflakes: errores de código
-  "E",    # pycodestyle: estilo
-  "W",    # pycodestyle: advertencias
-  "I",    # isort: orden de imports
-  "UP",   # pyupgrade: sintaxis moderna
-  "N",    # pep8-naming: nombres
-  "B",    # bugbear: patrones de bugs comunes
-  "A",    # flake8-builtins: no ocultar nombres de builtins ni de la stdlib
-  "C90",  # mccabe: complejidad
-  "ANN",  # flake8-annotations: anotaciones de tipos
-  "ARG",  # argumentos sin uso
-  "DTZ",  # fechas con zona horaria
-  "TRY",  # tryceratops: manejo de excepciones
-  "SLF",  # acceso a miembros privados
-  "ERA",  # código comentado
+  "F",    # Pyflakes: code errors
+  "E",    # pycodestyle: style
+  "W",    # pycodestyle: warnings
+  "I",    # isort: import order
+  "UP",   # pyupgrade: modern syntax
+  "N",    # pep8-naming: names
+  "B",    # bugbear: common bug patterns
+  "A",    # flake8-builtins: do not shadow builtins or stdlib names
+  "C90",  # mccabe: complexity
+  "ANN",  # flake8-annotations: type annotations
+  "ARG",  # unused arguments
+  "DTZ",  # timezone-aware dates
+  "TRY",  # tryceratops: exception handling
+  "SLF",  # private member access
+  "ERA",  # commented-out code
   "PL",   # pylint
-  "PT",   # estilo de pytest
-  "SIM",  # simplificaciones
+  "PT",   # pytest style
+  "SIM",  # simplifications
   "RET",  # returns
   "C4",   # comprehensions
-  "PTH",  # pathlib en vez de os.path
-  "PIE",  # misceláneos
+  "PTH",  # pathlib instead of os.path
+  "PIE",  # miscellaneous
   "RSE",  # raise
-  "PERF", # rendimiento
-  "FURB", # refurb: idioms modernos
-  "PGH",  # pygrep-hooks (prohíbe ignores genéricos)
-  "RUF",  # reglas propias de Ruff
+  "PERF", # performance
+  "FURB", # refurb: modern idioms
+  "PGH",  # pygrep-hooks (forbids blanket ignores)
+  "RUF",  # Ruff-specific rules
+  "INP",  # flake8-no-pep420: no implicit namespace packages
+  "PYI",  # flake8-pyi: type stubs
+  # preview rules, enabled one by one (explicit-preview-rules)
+  "D421",   # property docstrings do not start with a verb
+  "RUF052", # local dummy variables (_name) are not used
 ]
 ignore = [
-  # Estilo de docstrings: Ruff no puede exigir las dos reglas de cada par.
-  # - D203 (línea en blanco antes del docstring de una clase) choca con
-  #   `ruff format`, que quita esa línea: se usa su opuesta, D211.
-  # - D212 se descarta a favor de D213 (resumen en la segunda línea), el
-  #   estilo de los docstrings de la librería.
+  # Docstring style: Ruff cannot enforce both rules of each pair.
+  # - D203 (blank line before a class docstring) conflicts with
+  #   `ruff format`, which removes that line: its opposite, D211, is used.
+  # - D212 is dropped in favor of D213 (summary on the second line), the
+  #   docstring style of the library.
   "D203",
   "D212",
 ]
+
+# preview rules only apply when listed by code in `select`
+preview = true
+explicit-preview-rules = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 25
@@ -96,6 +104,8 @@ quote-style = "single"
 [tool.mypy]
 python_version = "3.14"
 strict = true
+# methods that override a parent method must use @override
+enable_error_code = ["explicit-override"]
 files = ["src", "tests"]
 
 [tool.pyright]
